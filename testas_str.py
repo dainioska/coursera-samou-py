@@ -1,3 +1,4 @@
+#string
 str1 = "ekranuotas tekstas \"yra cia\" "
 str2 = r"ekranuotas tekstas \"yra cia\" "
 print(str1)

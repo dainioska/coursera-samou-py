@@ -1,4 +1,4 @@
-#####ciklai
+#ciklai
 a = "example.net"
 if "my" in a or a.endswith(".net"):
     print("OK")

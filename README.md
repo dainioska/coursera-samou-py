@@ -1,2 +1,2 @@
 # coursera-samou-py
-Coursera samuchitel python
+Coursera samuchitel(pogruzenije v py) python
