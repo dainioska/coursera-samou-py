@@ -1,3 +1,5 @@
+#exaples and testing from (env) coursera rus 2020-12-02
+
 class Pet:
     def __init__(self, name)
         self.name = name
