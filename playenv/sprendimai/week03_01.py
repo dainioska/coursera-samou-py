@@ -1,4 +1,5 @@
 
+
 class FileReader:
     def __init__(self, path):
         self._path = path
@@ -9,4 +10,3 @@ class FileReader:
                 return f.read()
         except FileNotFoundError:
             return ''
-
