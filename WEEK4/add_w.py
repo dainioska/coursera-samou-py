@@ -17,10 +17,10 @@ class File:
             return f.write(line)
 
     def __str__(self):
-        return self.path
+        return str(self.path)
 
     def __add__(self, other):
-        new = self.write() + other.write()
+        new = self.write((self.read().join (other.read())))
         return File(new)
 
 ##############
@@ -36,6 +36,7 @@ if __name__ == "__main__":
     print('Isinstance: ', isinstance(obj1, File))
 
     new = obj1 + obj2
-    
+    print('Isinstance: ', isinstance(new, File))
+    print(new)
     # for i in obj1:
     #     print(asccii(i))
