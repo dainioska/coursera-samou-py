@@ -1,2 +1,4 @@
 # coursera-samou-py
-Coursera samuchitel(pogruzenije v py) python
+Coursera
+Погружение в Python
+by Moscow Institute of Physics and Technology, Mail.Ru Group & ФРОО
