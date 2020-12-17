@@ -1,7 +1,7 @@
 # coursera-samou-py
 
-#Coursera.
+Coursera.
 
-#Погружение в Python.
+Погружение в Python.
 
-#by Moscow Institute of Physics and Technology, Mail.Ru Group & ФРОО.
+by Moscow Institute of Physics and Technology, Mail.Ru Group & ФРОО.
