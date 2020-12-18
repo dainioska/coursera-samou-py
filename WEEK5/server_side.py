@@ -7,7 +7,7 @@ with socket.socket() as sock:
     
     while True:
         conn, addr = sock.accept()
-        print("connected client: " ,addr)
+        print("connected client: ", addr)
         conn.settimeout(10)    #timeout := None\0\gt 0
         with conn:
             while True:

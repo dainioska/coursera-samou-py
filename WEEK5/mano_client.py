@@ -1,4 +1,4 @@
-### version OK ,2020-12-15 tested on server-side
+### CLIENT version OK ,2020-12-15 tested on server-side
 import socket
 import time
 
