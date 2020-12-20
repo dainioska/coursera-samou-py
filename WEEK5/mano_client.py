@@ -48,7 +48,7 @@ class Client:
             
 ######
 if __name__ == '__main__':
-     client = Client('127.0.0.1', 8888, timeout=15)
+     client = Client('127.0.0.1', 10001, timeout=15)
      print("OK")
      #client.put("palm.cpu", 5.5, timestamp=1150864247)
      #client.put("eardrum.cpu", 4, timestamp=1150864251)
