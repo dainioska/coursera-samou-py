@@ -9,6 +9,7 @@ class ClientServerProtocol(asyncio.Protocol):
 
     def process_data(self, command):
         chunks = command.split(' ')
+        print('chunks....', chunks)
         if chunks[0] == 'get' and len(chunks) == 2:
             return self._get(chunks[1])
         elif chunks[0] == 'put' and len(chunks) == 4:
@@ -22,6 +23,7 @@ class ClientServerProtocol(asyncio.Protocol):
             return 'error\nwrong command\n\n'
 
     def data_received(self, data):
+        print('data...', data)
         self.transport.write(
             self.process_data(data.decode('utf-8').strip('\r\n')).encode('utf-8'))
 
@@ -40,25 +42,21 @@ class ClientServerProtocol(asyncio.Protocol):
 
     def _put(self, key, value, timestamp):
         if key == '*':
-            return 'error\nkey cannot contain *\n\n'
-
-            
+            return 'error\nkey cannot contain *\n\n'            
         if key not in STORAGE:
             STORAGE[key] = list()
         if (timestamp, value) not in STORAGE[key]:
             STORAGE[key].append((timestamp, value))
             STORAGE[key].sort(key=lambda tup: tup[0])
-
+            print(STORAGE[key])
+            print(STORAGE[key][0])
+            
         return 'ok\n\n'
 
 
 def run_server(host, port):
     loop = asyncio.get_event_loop()
-    coroutine = loop.create_server(
-        ClientServerProtocol,
-        host, port
-    )
-
+    coroutine = loop.create_server(ClientServerProtocol,host, port)
     server = loop.run_until_complete(coroutine)
 
     try:

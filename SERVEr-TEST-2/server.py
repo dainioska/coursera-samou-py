@@ -39,6 +39,7 @@ class StorageDriver:
 
         if method == "put":
             key, value, timestamp = params
+            print('params....', params)
             value, timestamp = float(value), int(timestamp)
             self.storage.put(key, value, timestamp)
             return {}
@@ -76,7 +77,6 @@ class MetricsStorageServerProtocol(asyncio.Protocol):
         """Метод data_received вызывается при получении данных в сокете"""
 
         self._buffer += data
-
         try:
             request = self._buffer.decode()
             # ждем данных, если команда не завершена символом \n
@@ -97,6 +97,7 @@ class MetricsStorageServerProtocol(asyncio.Protocol):
             code = self.code_err
 
         response = f'{code}{self.sep}{message}{self.sep}'
+        print('response>>', response)
         # отправляем ответ
         self.transport.write(response.encode())
 
