@@ -1,108 +1,81 @@
+import bisect
 import socket
 import time
 
 
 class ClientError(Exception):
-    """Общий класс исключений клиента"""
-    pass
-
-
-class ClientSocketError(ClientError):
-    """Исключение, выбрасываемое клиентом при сетевой ошибке"""
-    pass
-
-
-class ClientProtocolError(ClientError):
-    """Исключение, выбрасываемое клиентом при ошибке протокола"""
+    """класс исключений клиента"""
     pass
 
 
 class Client:
     def __init__(self, host, port, timeout=None):
-        # класс инкапсулирует создание сокета
-        # создаем клиентский сокет, запоминаем объект socke.socket в self
         self.host = host
         self.port = port
+        self.timeout = timeout
+
         try:
             self.connection = socket.create_connection((host, port), timeout)
         except socket.error as err:
-            raise ClientSocketError("error create connection", err)
+            raise ClientError("Cannot create connection", err)
 
     def _read(self):
-        """Метод для чтения ответа сервера"""
+
         data = b""
-        # накапливаем буфер, пока не встретим "\n\n" в конце команды
+
         while not data.endswith(b"\n\n"):
             try:
                 data += self.connection.recv(1024)
             except socket.error as err:
-                raise ClientSocketError("error recv data", err)
+                raise ClientError("Error reading data from socket", err)
 
-        # не забываем преобразовывать байты в объекты str для дальнейшей работы
-        decoded_data = data.decode()
+        return data.decode('utf-8')
 
-        status, payload = decoded_data.split("\n", 1)
-        payload = payload.strip()
+    def _send(self, data):
 
-        # если получили ошибку - бросаем исключение ClientError
-        if status == "error":
-            raise ClientProtocolError(payload)
-
-        return payload
+        try:
+            self.connection.sendall(data)
+        except socket.error as err:
+            raise ClientError("Error sending data to server", err)
 
     def put(self, key, value, timestamp=None):
+
         timestamp = timestamp or int(time.time())
+        self._send(f"put {key} {value} {timestamp}\n".encode())
+        raw_data = self._read()
 
-        # отправляем запрос команды put
-        try:
-            self.connection.sendall(
-                f"put {key} {value} {timestamp}\n".encode()
-            )
-        except socket.error as err:
-            raise ClientSocketError("error send data", err)
-
-        # разбираем ответ
-        self._read()
+        if raw_data == 'ok\n\n':
+            return
+        raise ClientError('Server returns an error')
 
     def get(self, key):
-        # формируем и отправляем запрос команды get
-        try:
-            self.connection.sendall(
-                f"get {key}\n".encode()
-            )
-        except socket.error as err:
-            raise ClientSocketError("error send data", err)
 
-        # читаем ответ
-        payload = self._read()
-
+        self._send(f"get {key}\n".encode())
+        raw_data = self._read()
         data = {}
-        if payload == "":
+        status, payload = raw_data.split("\n", 1)
+        payload = payload.strip()
+
+        if status != 'ok':
+            raise ClientError('Server returns an error')
+
+        if payload == '':
             return data
 
-        # разбираем ответ для команды get
-        for row in payload.split("\n"):
-            key, value, timestamp = row.split()
-            if key not in data:
-                data[key] = []
-            data[key].append((int(timestamp), float(value)))
+            try:
+                for row in payload.splitlines():
+                    key, value, timestamp = row.split()
+                    if key not in data:
+                        data[key] = []
+                    bisect.insort(data[key], ((int(timestamp), float(value))))
+            except Exception as err:
+                raise ClientError('Server returns invalid data', err)
 
         return data
 
     def close(self):
+
         try:
             self.connection.close()
         except socket.error as err:
-            raise ClientSocketError("error close connection", err)
-
-
-if __name__ == "__main__":
-    client = Client("127.0.0.1", 8888, timeout=5)
-    client.put("test", 0.5, timestamp=1)
-    client.put("test", 2.0, timestamp=2)
-    client.put("test", 0.5, timestamp=3)
-    client.put("load", 3, timestamp=4)
-    client.put("load", 4, timestamp=5)
-    print(client.get("*"))
-
-    client.close()
+            raise ClientError("Error. Do not close the connection", err)
